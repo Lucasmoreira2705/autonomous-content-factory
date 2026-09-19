@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AlertTriangle, ArrowUpRight, CheckCircle2, Clock3, Eye, Film, Sparkles, TrendingUp } from "lucide-react";
 import { contents, pipeline } from "@/components/mock-data";
 import { PerformanceChart } from "@/components/performance-chart";
@@ -16,7 +17,7 @@ export default function DashboardPage() {
     </section>
 
     <section className="panel">
-      <SectionTitle title="Pipeline ao vivo" subtitle="Volume atual em cada etapa da produção" right={<a className="text-link" href="/pipeline">Abrir pipeline <ArrowUpRight size={14}/></a>} />
+      <SectionTitle title="Pipeline ao vivo" subtitle="Volume atual em cada etapa da produção" right={<Link className="text-link" href="/pipeline">Abrir pipeline <ArrowUpRight size={14}/></Link>} />
       <div className="pipeline-strip">{pipeline.map((item, index) => <div className="pipeline-step" key={item.name}><div className={`pipeline-node ${item.tone}`}>{item.count}</div><span>{item.name}</span>{index < pipeline.length - 1 && <i />}</div>)}</div>
     </section>
 
@@ -32,7 +33,7 @@ export default function DashboardPage() {
     </div>
 
     <section className="panel">
-      <SectionTitle title="Conteúdos em andamento" subtitle="Acompanhe os jobs que ainda não chegaram ao fim" right={<a className="text-link" href="/contents">Ver todos <ArrowUpRight size={14}/></a>} />
+      <SectionTitle title="Conteúdos em andamento" subtitle="Acompanhe os jobs que ainda não chegaram ao fim" right={<Link className="text-link" href="/contents">Ver todos <ArrowUpRight size={14}/></Link>} />
       <div className="data-table"><div className="table-head"><span>Conteúdo</span><span>Etapa</span><span>Status</span><span>Progresso</span><span>Slot</span></div>{contents.slice(0,4).map(item => <div className="table-row" key={item.title}><div><strong>{item.title}</strong><small>{item.channel} · {item.platform}</small></div><span>{item.stage}</span><StatusBadge tone={item.status === "APROVADO" ? "green" : item.status === "REVISÃO" ? "amber" : "blue"}>{item.status}</StatusBadge><div className="progress-cell"><div className="progress-track"><i style={{width:`${item.progress}%`}} /></div><small>{item.progress}%</small></div><span>{item.time}</span></div>)}</div>
     </section>
   </div>;
