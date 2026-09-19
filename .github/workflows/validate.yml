@@ -3,7 +3,8 @@ name: Validate project
 on:
   push:
     branches:
-      - feat/frontend-dashboard
+      - main
+      - refactor/vite-frontend
   workflow_dispatch:
 
 jobs:
@@ -15,31 +16,58 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: frontend/package.json
+
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+
       - name: TypeScript
         run: npm run typecheck
+
       - name: Lint
         run: npm run lint
+
       - name: Build
         run: npm run build
+
+      - name: Smoke test navigation
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 > /tmp/vite-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill $PREVIEW_PID || true' EXIT
+
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          for route in / /pipeline /contents /contents/CF-01842 /calendar /channels /publications /performance /learning /settings; do
+            echo "Checking $route"
+            curl -fsS "http://127.0.0.1:4173$route" | grep -q 'id="root"'
+          done
 
   backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Install dependencies
         run: pip install -e ".[dev]"
+
       - name: Test
         run: pytest -q

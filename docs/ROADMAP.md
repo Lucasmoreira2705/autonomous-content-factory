@@ -1,12 +1,12 @@
 # Roadmap
 
-## Phase 1A — implemented now
+## Phase 1A — implemented
 - Architecture and directories
-- Complete future-facing database model
+- Future-facing database model
 - Alembic migrations
 - State machine
 - Orchestrator
-- `AgentBase`
+- AgentBase
 - Ollama adapter with structured output
 - Script agent
 - Script reviewer
@@ -14,15 +14,26 @@
 - DB-backed local worker
 - Tests
 
+## Frontend foundation — implemented
+- React + TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui-compatible component structure
+- Lucide Icons
+- Recharts
+- React Router
+- FastAPI read boundary
+- Responsive dark SaaS dashboard
+
 ## Phase 1B — next
 - Source/research input contract
-- Local TTS adapter (Piper-compatible)
-- Legal asset provider adapters + source/license persistence
+- Local TTS adapter
+- Legal asset provider adapters
 - Scene planner
 - FFmpeg composition service
 - Whisper/local alignment for captions
 - Motion templates
-- Technical video reviewer (ffprobe/FFmpeg checks)
+- Technical video reviewer
 - Final approval agent
 - Automatic correction routing
 - Final MP4 output
@@ -47,4 +58,3 @@
 - Autopilot buffer planning
 - Pipeline pause rules
 - PostgreSQL + Redis worker scale-out
-- Next.js production dashboard

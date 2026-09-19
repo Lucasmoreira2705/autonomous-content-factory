@@ -1,9 +1,0 @@
-import { Bell, Brain, Clock3, KeyRound, Mic2, Save, ShieldCheck, SlidersHorizontal } from "lucide-react";
-import { PageHeader } from "@/components/ui";
-
-const sections=[{icon:Brain,title:"IA e modelos",desc:"Modelos Ollama usados por cada agente"},{icon:Mic2,title:"Voz e áudio",desc:"Engine, voz, velocidade e normalização"},{icon:Clock3,title:"Agendamento",desc:"Slots, dias, intervalo e quantidade diária"},{icon:SlidersHorizontal,title:"Qualidade",desc:"Scores mínimos e limite de tentativas"},{icon:KeyRound,title:"Integrações",desc:"YouTube, TikTok, Instagram e Facebook"},{icon:Bell,title:"Alertas",desc:"Falhas consecutivas e pipeline pausado"}];
-
-export default function SettingsPage(){
-  return <div className="page-stack"><PageHeader eyebrow="CONTROLE" title="Configurações" description="Ajuste o comportamento da fábrica sem alterar o código." action={<button className="primary-button"><Save size={16}/> Salvar alterações</button>}/>
-  <div className="settings-layout"><aside className="settings-nav">{sections.map((s,i)=>{const Icon=s.icon;return <button className={i===0?"selected":""} key={s.title}><Icon size={17}/><span>{s.title}</span></button>})}</aside><section className="panel settings-panel"><div className="settings-heading"><Brain size={20}/><div><h2>IA e modelos</h2><p>Escolha o modelo local utilizado por cada etapa.</p></div></div>{[["Agente de ideia","qwen3:8b"],["Agente de roteiro","qwen3:8b"],["Aprovação de roteiro","qwen3:8b"],["Agente de revisão","qwen3:8b"],["Aprovação final","qwen3:8b"]].map(([label,value])=><label className="setting-row" key={label}><span><strong>{label}</strong><small>Execução local via Ollama</small></span><select defaultValue={value}><option>qwen3:8b</option><option>gemma3:4b</option><option>llama3.1:8b</option></select></label>)}<div className="security-note"><ShieldCheck size={18}/><span>Nenhum token ou segredo é exibido nesta tela ou salvo em logs.</span></div></section></div></div>
-}

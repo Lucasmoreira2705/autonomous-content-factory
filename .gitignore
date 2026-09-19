@@ -1,10 +1,14 @@
 .venv/
+venv/
 __pycache__/
 .pytest_cache/
 .env
 *.pyc
 *.pyo
 *.db
+.DS_Store
+
+# Runtime media and logs
 storage/videos/*
 storage/assets/*
 storage/audio/*
@@ -14,10 +18,11 @@ storage/logs/*
 !storage/audio/.gitkeep
 !storage/logs/.gitkeep
 
-# Frontend
+# React / Vite frontend
 frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/.turbo/
+frontend/dist/
+frontend/.vite/
 frontend/*.log
-.DS_Store
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local

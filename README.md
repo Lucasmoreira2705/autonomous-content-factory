@@ -1,91 +1,99 @@
 # Autonomous Content Factory
 
-Local-first autonomous vertical-video factory.
+Fábrica autônoma de conteúdo em vídeo com backend Python e frontend React desacoplados.
 
-## Current status
-
-Phase 1A backend core is implemented and the operational frontend is available in `frontend/`.
-
-Backend flow:
+## Arquitetura
 
 ```text
-IDEA_CREATED
-  -> SCRIPT_GENERATING
-  -> SCRIPT_REVIEW
-       -> SCRIPT_APPROVED
-       -> SCRIPT_REJECTED -> SCRIPT_GENERATING
-       -> NEEDS_INTERVENTION
+frontend/
+  React + TypeScript + Vite
+  Tailwind CSS + shadcn/ui
+  Lucide Icons + Recharts
+  React Router
+        |
+        | HTTP / JSON
+        v
+backend/
+  FastAPI + SQLAlchemy
+  app/agents/        agentes de IA
+  app/services/      Ollama, futuros FFmpeg/Whisper/TTS/assets
+  app/orchestrator/  state machine e fluxo
+  app/publishers/    integrações oficiais futuras
+  app/workers/       execução assíncrona local
+
+storage/
+  runtime local de banco, mídia, áudio e logs
 ```
 
-Frontend screens mirror the complete target pipeline:
+O frontend não executa Python e não contém lógica de processamento de vídeo, IA ou credenciais.
+
+## Pipeline
 
 ```text
-IDEIA -> ROTEIRO -> APROVAÇÃO -> CRIAÇÃO -> MOTION -> REVISÃO
--> APROVAÇÃO FINAL -> METADADOS -> AGENDAMENTO -> PUBLICAÇÃO
--> PERFORMANCE -> APRENDIZADO
+IDEIA
+-> ROTEIRO
+-> APROVAÇÃO
+-> CRIAÇÃO
+-> MOTION
+-> REVISÃO
+-> APROVAÇÃO FINAL
+-> AGENDAMENTO
+-> PUBLICAÇÃO
+-> PERFORMANCE
+-> APRENDIZADO
 ```
 
-## Requirements
+## Requisitos
 
 - Python 3.12+
 - Node.js 22+
-- Ollama installed and running locally
-- `qwen3:8b` (default) or another configured local model
+- Ollama
+- npm
 
-## Backend install
-
-Using `uv`:
-
-```bash
-uv sync --extra dev
-cp .env.example .env
-ollama pull qwen3:8b
-```
-
-Using `pip`:
+## 1. Backend Python
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-pip install -e '.[dev]'
+pip install -e ".[dev]"
 cp .env.example .env
 ollama pull qwen3:8b
-```
 
-## Database
-
-```bash
 PYTHONPATH=backend alembic upgrade head
 PYTHONPATH=backend python -m app.database
-```
-
-SQLite is the default. To move to PostgreSQL later, change `DATABASE_URL` and run migrations.
-
-## Run API
-
-```bash
 PYTHONPATH=backend uvicorn app.main:app --reload
 ```
 
-API docs: `http://127.0.0.1:8000/docs`.
+FastAPI: `http://127.0.0.1:8000`  
+Swagger: `http://127.0.0.1:8000/docs`
 
-## Run worker
+Worker, em outro terminal:
 
 ```bash
+source .venv/bin/activate
 PYTHONPATH=backend python -m app.workers.runner
 ```
 
-## Run frontend
+## 2. Frontend React/Vite
 
 ```bash
 cd frontend
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-Dashboard: `http://localhost:3000`.
+Frontend: `http://localhost:5173`
 
-## Validate
+O Vite usa proxy local para `/api`. Em ambientes externos, configure somente a URL pública:
+
+```env
+VITE_API_BASE_URL=https://seu-backend.example.com/api/v1
+```
+
+Nunca coloque tokens, senhas ou API keys em variáveis `VITE_*`.
+
+## Build e validação
 
 Backend:
 
@@ -100,45 +108,36 @@ cd frontend
 npm run typecheck
 npm run lint
 npm run build
+npm run preview
 ```
 
-## Security
+## APIs usadas pelo React
 
-The repository intentionally excludes:
+- `GET /api/v1/health`
+- `GET /api/v1/ui/dashboard`
+- `GET /api/v1/ui/channels`
+- `GET /api/v1/ui/publications`
+- `GET /api/v1/ui/learning`
+- `GET /api/v1/ui/analytics`
+
+A criação e execução dos jobs continua no backend:
+
+- `POST /api/v1/jobs/from-topic`
+- `POST /api/v1/jobs/{job_id}/run`
+- `GET /api/v1/jobs/{job_id}`
+
+## Segurança
+
+O Git ignora:
 
 - `.env`
-- tokens, passwords and API secrets
-- SQLite runtime databases
-- generated videos and audio
+- tokens, senhas e API keys
 - `node_modules`
-- Python virtual environments
-- Next.js build output
+- `dist`
+- ambientes Python
+- bancos SQLite locais
+- vídeos gerados
+- áudios gerados
+- logs e arquivos temporários
 
-Only `.env.example` is versioned.
-
-## Project map
-
-```text
-backend/app/
-  api/                  FastAPI routes
-  agents/               AgentBase + independent agents
-  core/                 settings/logging
-  database/             SQLAlchemy models/session/seed
-  orchestrator/         state machine + controller
-  services/ollama/      local LLM adapter
-  services/ffmpeg/      Phase 1B attachment point
-  services/whisper/     Phase 1B attachment point
-  services/tts/         Phase 1B attachment point
-  services/assets/      Phase 1B attachment point
-  publishers/           isolated platform adapters
-  workers/              local durable polling worker
-frontend/
-  app/                  Next.js routes
-  components/           reusable dashboard components
-docs/                    architecture and roadmap
-storage/                 local runtime media/database
-```
-
-## Factuality
-
-Phase 1A does not yet perform web research. `Idea.source_facts` is the authoritative fact input. The script prompt forbids unsupported hard facts and the reviewer can reject unsupported factual claims.
+Somente arquivos `.env.example` são versionados.

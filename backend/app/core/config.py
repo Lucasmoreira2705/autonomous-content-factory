@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     max_script_revisions: int = 5
     default_language: str = "pt-BR"
     default_timezone: str = "America/Sao_Paulo"
+    frontend_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     log_level: str = "INFO"
 
     model_config = SettingsConfigDict(
