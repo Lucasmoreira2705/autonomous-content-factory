@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+*.pyc
+*.pyo
+*.db
+storage/videos/*
+storage/assets/*
+storage/audio/*
+storage/logs/*
+!storage/videos/.gitkeep
+!storage/assets/.gitkeep
+!storage/audio/.gitkeep
+!storage/logs/.gitkeep
