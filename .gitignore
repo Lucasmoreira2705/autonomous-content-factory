@@ -13,3 +13,11 @@ storage/logs/*
 !storage/assets/.gitkeep
 !storage/audio/.gitkeep
 !storage/logs/.gitkeep
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+frontend/*.log
+.DS_Store

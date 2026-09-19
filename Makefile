@@ -1,4 +1,4 @@
-.PHONY: install migrate seed api worker test
+.PHONY: install migrate seed api worker test frontend-install frontend-dev frontend-build validate
 
 install:
 	uv sync --extra dev
@@ -18,3 +18,16 @@ worker:
 
 test:
 	pytest -q
+
+frontend-install:
+	cd frontend && npm install
+
+frontend-dev:
+	cd frontend && npm run dev
+
+frontend-build:
+	cd frontend && npm run typecheck && npm run lint && npm run build
+
+validate:
+	pytest -q
+	cd frontend && npm run typecheck && npm run lint && npm run build

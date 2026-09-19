@@ -1,18 +1,38 @@
 # Autonomous Content Factory
 
-Phase 1A of a local-first autonomous vertical-video factory.
+Local-first autonomous vertical-video factory.
 
-## What works now
+## Current status
 
-A topic can become a persisted job, generate a structured script through local Ollama, be evaluated by an independent reviewer, automatically regenerate with mandatory corrections, preserve every version, and stop only at `SCRIPT_APPROVED` or `NEEDS_INTERVENTION`.
+Phase 1A backend core is implemented and the operational frontend is available in `frontend/`.
+
+Backend flow:
+
+```text
+IDEA_CREATED
+  -> SCRIPT_GENERATING
+  -> SCRIPT_REVIEW
+       -> SCRIPT_APPROVED
+       -> SCRIPT_REJECTED -> SCRIPT_GENERATING
+       -> NEEDS_INTERVENTION
+```
+
+Frontend screens mirror the complete target pipeline:
+
+```text
+IDEIA -> ROTEIRO -> APROVAÇÃO -> CRIAÇÃO -> MOTION -> REVISÃO
+-> APROVAÇÃO FINAL -> METADADOS -> AGENDAMENTO -> PUBLICAÇÃO
+-> PERFORMANCE -> APRENDIZADO
+```
 
 ## Requirements
 
 - Python 3.12+
+- Node.js 22+
 - Ollama installed and running locally
 - `qwen3:8b` (default) or another configured local model
 
-## Install
+## Backend install
 
 Using `uv`:
 
@@ -26,7 +46,7 @@ Using `pip`:
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+source .venv/bin/activate
 pip install -e '.[dev]'
 cp .env.example .env
 ollama pull qwen3:8b
@@ -39,60 +59,62 @@ PYTHONPATH=backend alembic upgrade head
 PYTHONPATH=backend python -m app.database
 ```
 
-SQLite is the default. To move to PostgreSQL later, change only `DATABASE_URL` and run migrations.
+SQLite is the default. To move to PostgreSQL later, change `DATABASE_URL` and run migrations.
 
 ## Run API
-
-From the project root:
 
 ```bash
 PYTHONPATH=backend uvicorn app.main:app --reload
 ```
 
-Open `http://127.0.0.1:8000/docs`.
+API docs: `http://127.0.0.1:8000/docs`.
 
 ## Run worker
-
-In another terminal:
 
 ```bash
 PYTHONPATH=backend python -m app.workers.runner
 ```
 
-This is the zero-cost DB-backed queue for Phase 1. A future Redis/Celery adapter can replace polling without replacing the state machine.
-
-## Create a topic job
+## Run frontend
 
 ```bash
-curl -X POST http://127.0.0.1:8000/api/v1/jobs/from-topic \\
-  -H 'Content-Type: application/json' \\
-  -d '{
-    "topic": "Como uma empresa quase perdeu tudo por uma decisão simples",
-    "niche": "negócios",
-    "target_duration_seconds": 75,
-    "auto_run": true
-  }'
+cd frontend
+npm install
+npm run dev
 ```
 
-For queue mode use `"auto_run": false`; the worker will pick it up.
+Dashboard: `http://localhost:3000`.
 
-## Health
+## Validate
 
-```bash
-curl http://127.0.0.1:8000/api/v1/health
-```
-
-## Tests
+Backend:
 
 ```bash
 pytest -q
 ```
 
-The tests do not require a live Ollama instance; LLM behavior is mocked at the agent boundary.
+Frontend:
 
-## Important factuality behavior
+```bash
+cd frontend
+npm run typecheck
+npm run lint
+npm run build
+```
 
-Phase 1A does not yet search the web. Factual sources live in `ideas.source_facts`. The script agent is instructed not to invent unsupported hard facts and the reviewer can reject them. The dedicated discovery/research stage comes next.
+## Security
+
+The repository intentionally excludes:
+
+- `.env`
+- tokens, passwords and API secrets
+- SQLite runtime databases
+- generated videos and audio
+- `node_modules`
+- Python virtual environments
+- Next.js build output
+
+Only `.env.example` is versioned.
 
 ## Project map
 
@@ -102,18 +124,21 @@ backend/app/
   agents/               AgentBase + independent agents
   core/                 settings/logging
   database/             SQLAlchemy models/session/seed
-  orchestrator/         state machine + transitions + controller
+  orchestrator/         state machine + controller
   services/ollama/      local LLM adapter
-  services/ffmpeg/      reserved Phase 1B
-  services/whisper/     reserved Phase 1B
-  services/tts/         reserved Phase 1B
-  services/assets/      reserved Phase 1B
-  publishers/           isolated official platform adapters
+  services/ffmpeg/      Phase 1B attachment point
+  services/whisper/     Phase 1B attachment point
+  services/tts/         Phase 1B attachment point
+  services/assets/      Phase 1B attachment point
+  publishers/           isolated platform adapters
   workers/              local durable polling worker
-  templates/            future video templates
-backend/alembic/         schema migrations
-backend/tests/           automated tests
-frontend/                future Next.js dashboard
-storage/                 local media/database runtime data
+frontend/
+  app/                  Next.js routes
+  components/           reusable dashboard components
 docs/                    architecture and roadmap
+storage/                 local runtime media/database
 ```
+
+## Factuality
+
+Phase 1A does not yet perform web research. `Idea.source_facts` is the authoritative fact input. The script prompt forbids unsupported hard facts and the reviewer can reject unsupported factual claims.
