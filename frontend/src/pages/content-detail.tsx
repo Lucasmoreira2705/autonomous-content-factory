@@ -1,19 +1,23 @@
-import { ArrowLeft, Bot, CheckCircle2, Clock3, FileText, History, PlayCircle } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Bot, CheckCircle2, Clock3, FileText, History, PlayCircle } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { PageHeader, StatusBadge } from "@/components/common";
 import { useApiResource } from "@/hooks/use-api-resource";
 import { api } from "@/lib/api";
-import { demoDashboard } from "@/lib/demo-data";
+import { emptyDashboard } from "@/lib/empty-data";
 import { presentJob } from "@/lib/pipeline";
 
 export function ContentDetailPage() {
   const { id } = useParams();
-  const { data } = useApiResource(api.dashboard, demoDashboard);
-  const source = data.jobs.find((job) => job.id === id) ?? data.jobs[0];
+  const { data, loading, error } = useApiResource(api.dashboard, emptyDashboard);
+  const source = data.jobs.find((job) => job.id === id);
   const job = source ? presentJob(source) : null;
 
+  if (error) {
+    return <div className="page-stack"><div className="connection-error"><AlertTriangle size={16} /><div><strong>Backend indisponível</strong><span>Não foi possível carregar este job.</span></div></div></div>;
+  }
+
   if (!job || !source) {
-    return <div className="empty-state">Job não encontrado.</div>;
+    return <div className="page-stack"><Link to="/contents" className="back-link"><ArrowLeft size={15} /> Voltar para conteúdos</Link><div className="empty-state">{loading ? "Carregando job..." : "Job não encontrado."}</div></div>;
   }
 
   const stages = ["Ideia", "Roteiro", "Aprovação", "Criação", "Motion", "Revisão", "Aprovação final", "Agendamento", "Publicação"];
@@ -40,11 +44,10 @@ export function ContentDetailPage() {
         <section className="panel">
           <div className="detail-tabs"><button className="active"><FileText size={15} /> Roteiro</button><button><PlayCircle size={15} /> Criação</button><button><History size={15} /> Versões</button></div>
           <div className="script-preview">
-            <span>ROTEIRO v{source.script_revision_count || 1}</span>
+            <span>ROTEIRO v{source.script_revision_count || 0}</span>
             <h3>{job.title}</h3>
-            <p>O conteúdo detalhado do roteiro permanece armazenado e versionado no backend Python.</p>
-            <p>Esta tela React consome apenas os dados necessários pela API e não executa processamento de IA ou vídeo no navegador.</p>
-            <blockquote>Status atual: {job.status}. Progresso visual estimado: {job.progress}%.</blockquote>
+            <p>O conteúdo do roteiro permanece armazenado e versionado no backend Python. Esta tela React não executa IA ou processamento de vídeo.</p>
+            <blockquote>Status atual: {job.status}. Progresso visual: {job.progress}%.</blockquote>
           </div>
         </section>
         <aside className="panel job-side">

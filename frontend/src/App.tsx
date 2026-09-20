@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/app-shell";
+import { AgentsPage } from "@/pages/agents";
 import { CalendarPage } from "@/pages/calendar";
 import { ChannelsPage } from "@/pages/channels";
 import { ContentDetailPage } from "@/pages/content-detail";
@@ -17,6 +18,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<DashboardPage />} />
         <Route path="/pipeline" element={<PipelinePage />} />
+        <Route path="/agents" element={<AgentsPage />} />
         <Route path="/contents" element={<ContentsPage />} />
         <Route path="/contents/:id" element={<ContentDetailPage />} />
         <Route path="/calendar" element={<CalendarPage />} />

@@ -1,24 +1,25 @@
 import { useEffect, useState } from "react";
 
-export function useApiResource<T>(loader: () => Promise<T>, fallback: T) {
-  const [data, setData] = useState<T>(fallback);
+export function useApiResource<T>(loader: () => Promise<T>, initialValue: T) {
+  const [data, setData] = useState<T>(initialValue);
   const [loading, setLoading] = useState(true);
-  const [usingFallback, setUsingFallback] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
+
+    setLoading(true);
+    setError(null);
+
     loader()
       .then((result) => {
         if (!active) return;
         setData(result);
-        setUsingFallback(false);
       })
-      .catch(() => {
+      .catch((reason: unknown) => {
         if (!active) return;
-        if (import.meta.env.VITE_DEMO_FALLBACK !== "false") {
-          setData(fallback);
-          setUsingFallback(true);
-        }
+        const message = reason instanceof Error ? reason.message : "Falha ao conectar com o backend";
+        setError(message);
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -27,7 +28,7 @@ export function useApiResource<T>(loader: () => Promise<T>, fallback: T) {
     return () => {
       active = false;
     };
-  }, [loader, fallback]);
+  }, [loader]);
 
-  return { data, loading, usingFallback };
+  return { data, loading, error };
 }

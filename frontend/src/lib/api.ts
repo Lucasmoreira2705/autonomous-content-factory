@@ -12,6 +12,21 @@ export type UiJob = {
   created_at: string;
 };
 
+export type AnalyticsPoint = {
+  date: string;
+  views: number;
+  retention: number;
+};
+
+export type CalendarSlotView = {
+  id: string;
+  channel: string;
+  platform: string;
+  scheduled_at: string;
+  video_id: string | null;
+  status: string;
+};
+
 export type DashboardSnapshot = {
   totals: {
     ideas: number;
@@ -59,6 +74,19 @@ export type AnalyticsView = {
   metrics: Record<string, number | string | null>;
 };
 
+export type AgentView = {
+  id: string;
+  name: string;
+  role: string;
+  model_name: string | null;
+  enabled: boolean;
+  run_count: number;
+  last_run_at: string | null;
+  last_status: string | null;
+  last_duration_ms: number | null;
+  last_error: string | null;
+};
+
 async function apiFetch<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     headers: { Accept: "application/json" },
@@ -75,5 +103,7 @@ export const api = {
   publications: () => apiFetch<PublicationView[]>("/ui/publications"),
   learning: () => apiFetch<LearningView[]>("/ui/learning"),
   analytics: () => apiFetch<AnalyticsView[]>("/ui/analytics"),
+  calendar: () => apiFetch<CalendarSlotView[]>("/ui/calendar"),
+  agents: () => apiFetch<AgentView[]>("/ui/agents"),
   health: () => apiFetch<Record<string, string>>("/health"),
 };

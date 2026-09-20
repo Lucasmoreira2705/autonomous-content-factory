@@ -1,21 +1,21 @@
-import { MoreHorizontal, Plus, RadioTower } from "lucide-react";
+import { AlertTriangle, MoreHorizontal, Plus, RadioTower } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader, StatusBadge } from "@/components/common";
 import { useApiResource } from "@/hooks/use-api-resource";
 import { api } from "@/lib/api";
-import { demoChannels } from "@/lib/demo-data";
 
 export function ChannelsPage() {
-  const { data: channels } = useApiResource(api.channels, demoChannels);
+  const { data: channels, loading, error } = useApiResource(api.channels, []);
 
   return (
     <div className="page-stack">
       <PageHeader
         eyebrow="MULTICANAL"
         title="Canais"
-        description="Cada canal mantém nicho, voz, template, horários e redes independentes."
+        description="Canais cadastrados no backend com nicho, voz, idioma e timezone."
         action={<Button><Plus size={16} /> Novo canal</Button>}
       />
+      {error && <div className="connection-error"><AlertTriangle size={16} /><div><strong>Backend indisponível</strong><span>Não há canais simulados.</span></div></div>}
       <div className="channel-grid">
         {channels.map((channel, index) => (
           <article className="channel-card" key={channel.id}>
@@ -26,13 +26,14 @@ export function ChannelsPage() {
             <h3>{channel.name}</h3>
             <p>{channel.niche}</p>
             <div className="channel-details">
-              <div><span>Voz</span><strong>{channel.voice || "Padrão"}</strong></div>
+              <div><span>Voz</span><strong>{channel.voice || "Não configurada"}</strong></div>
               <div><span>Idioma</span><strong>{channel.language}</strong></div>
               <div><span>Timezone</span><strong>{channel.timezone}</strong></div>
             </div>
             <StatusBadge tone={channel.is_active ? "green" : "neutral"}>{channel.is_active ? "Ativo" : "Pausado"}</StatusBadge>
           </article>
         ))}
+        {!loading && !channels.length && <div className="empty-state">Nenhum canal cadastrado.</div>}
       </div>
     </div>
   );

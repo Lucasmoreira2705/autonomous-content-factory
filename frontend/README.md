@@ -15,6 +15,12 @@ Camada visual da Autonomous Content Factory.
 
 Nenhum processamento de IA, vídeo, TTS ou credencial sensível roda no frontend.
 
+## Dados
+
+O frontend não contém dados demonstrativos. Dashboard, Pipeline, Agentes, Conteúdos, Calendário, Canais, Publicações, Performance e Aprendizado são alimentados pelas APIs do FastAPI.
+
+Se o backend estiver indisponível, a interface mostra um estado de conexão/estado vazio, nunca números ou conteúdos fictícios.
+
 ## Configuração
 
 ```bash
@@ -55,11 +61,11 @@ src/
   hooks/
   lib/
     api.ts          cliente HTTP do FastAPI
+    analytics.ts    agregação visual de métricas recebidas
     pipeline.ts     apresentação dos estados
   pages/
+    agents.tsx      status dos agentes registrados
   App.tsx
   main.tsx
   index.css
 ```
-
-O projeto foi mantido como SPA Vite para ser simples de importar em ferramentas compatíveis com React/Vite, incluindo Lovable.
