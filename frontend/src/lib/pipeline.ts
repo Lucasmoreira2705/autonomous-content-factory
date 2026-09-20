@@ -1,5 +1,13 @@
-import type { ContentCardData } from "@/lib/demo-data";
 import type { UiJob } from "@/lib/api";
+
+export type ContentCardData = {
+  id: string;
+  title: string;
+  channel: string;
+  stage: string;
+  status: string;
+  progress: number;
+};
 
 export const pipelineStages = [
   { key: "idea", name: "Ideia", tone: "purple" },
@@ -48,8 +56,6 @@ export function presentJob(job: UiJob): ContentCardData {
     stage: presentation.stage,
     status: job.status,
     progress: presentation.progress,
-    platform: "Multi",
-    time: "—",
   };
 }
 
